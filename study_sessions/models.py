@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.utils import timezone
 # Create your models here.
 class Sessions(models.Model):
     subject = models.CharField(max_length=255)
@@ -8,7 +8,7 @@ class Sessions(models.Model):
     duration = models.DurationField()
     date = models.DateField()
     notes = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
     def __str__(self):
