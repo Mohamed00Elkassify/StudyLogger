@@ -1,12 +1,14 @@
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.generic import (ListView, CreateView, UpdateView, DeleteView, FormView)
+from django.views.generic import (ListView, CreateView, UpdateView, DeleteView, FormView, TemplateView)
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
+from datetime import date, timedelta
 from .models import Session
 from .forms import RegisterForm, SessionsForm
+from django.db.models import Sum
 
 
 # Create your views here.
@@ -21,7 +23,7 @@ class RegisterView(FormView):
         login(self.request, user)
         return super().form_valid(form)
     
-# List, Filter, Pagination
+#* List, Filter, Pagination
 class SessionListView(LoginRequiredMixin, ListView):
     model = Session
     template_name = 'study_sessions/sessions_list.html'
@@ -42,6 +44,7 @@ class SessionListView(LoginRequiredMixin, ListView):
             qs = qs.filter(date__lte=end_date)
         return qs
 
+#* create
 class SessionCreateView(LoginRequiredMixin, CreateView):
     model = Session
     form_class = SessionsForm
@@ -52,6 +55,7 @@ class SessionCreateView(LoginRequiredMixin, CreateView):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
+#* update
 class SessionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Session
     form_class = SessionsForm
@@ -63,6 +67,7 @@ class SessionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             id=self.kwargs['pk'], user=self.request.user
         ).exists()
 
+#* delete
 class SessionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Session
     template_name = 'study_sessions/sessions_confirm_delete.html'
@@ -73,3 +78,19 @@ class SessionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             id=self.kwargs['pk'], user=self.request.user
         ).exists()
     
+#* Weekly Summary
+class WeeklySummary(LoginRequiredMixin, TemplateView):
+    template_name = 'study_sessions/weekly_summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = date.today()
+        startweek = today - timedelta(days=today.weekday())
+        endweek = startweek + timedelta(days=6)
+        sessions = Session.objects.filter(
+            user=self.request.user,
+            date__range=(startweek, endweek)
+        )
+        summary = sessions.values('subject').annotate(total=Sum('duration'))
+        context['summary'] = summary
+        return context
