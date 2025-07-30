@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Sessions
+from .models import Session
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField()
@@ -12,6 +12,6 @@ class RegisterForm(UserCreationForm):
 
 class SessionsForm(forms.ModelForm):
     class Meta:
-        model = Sessions
+        model = Session
         fields = ['subject', 'duration', 'date', 'notes']
         

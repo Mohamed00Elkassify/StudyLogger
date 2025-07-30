@@ -3,9 +3,9 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import (ListView, CreateView, UpdateView, DeleteView, FormView)
 from django.contrib.auth import login
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from .models import Sessions
+from .models import Session
 from .forms import RegisterForm, SessionsForm
 
 
@@ -23,13 +23,13 @@ class RegisterView(FormView):
     
 # List, Filter, Pagination
 class SessionListView(LoginRequiredMixin, ListView):
-    model = Sessions
+    model = Session
     template_name = 'study_sessions/sessions_list.html'
     context_object_name = 'sessions'
     paginate_by = 5
 
     def get_queryset(self):
-        qs = Sessions.objects.filter(user=self.request.user)
+        qs = Session.objects.filter(user=self.request.user)
         subject = self.request.GET.get("subject")
         start_date = self.request.GET.get("start_date")
         end_date = self.request.GET.get("end_date")
@@ -41,3 +41,35 @@ class SessionListView(LoginRequiredMixin, ListView):
         if end_date:
             qs = qs.filter(date__lte=end_date)
         return qs
+
+class SessionCreateView(LoginRequiredMixin, CreateView):
+    model = Session
+    form_class = SessionsForm
+    template_name = 'study_sessions/sessions_form.html'
+    success_url = reverse_lazy('sessions_list')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+class SessionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Session
+    form_class = SessionsForm
+    template_name = 'study_sessions/sessions_form.html'
+    success_url = reverse_lazy('sessions_list')
+
+    def test_func(self):
+        return Session.objects.filter(
+            id=self.kwargs['pk'], user=self.request.user
+        ).exists()
+
+class SessionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Session
+    template_name = 'study_sessions/sessions_confirm_delete.html'
+    success_url = reverse_lazy('sessions_list')
+
+    def test_func(self):
+        return Session.objects.filter(
+            id=self.kwargs['pk'], user=self.request.user
+        ).exists()
+    
