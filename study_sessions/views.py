@@ -79,7 +79,7 @@ class SessionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         ).exists()
     
 #* Weekly Summary
-class WeeklySummary(LoginRequiredMixin, TemplateView):
+class WeeklySummaryView(LoginRequiredMixin, TemplateView):
     template_name = 'study_sessions/weekly_summary.html'
 
     def get_context_data(self, **kwargs):
