@@ -30,6 +30,7 @@ class SessionListView(LoginRequiredMixin, ListView):
     context_object_name = 'sessions'
     paginate_by = 5
 
+    #* Filter Sessions
     def get_queryset(self):
         qs = Session.objects.filter(user=self.request.user)
         subject = self.request.GET.get("subject")

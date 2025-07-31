@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Your Study Sessions</h2>
+    <form method="get">
+        Subject: <input type="text" name="subject" value="{{ request.GET.subject }}">
+        Start: <input type="text" name="start" value="{{ request.GET.start_date }}">
+        End: <input type="text" name="end" value="{{ request.GET.end_date }}">
+    </form>
+    
+
+    </form>
