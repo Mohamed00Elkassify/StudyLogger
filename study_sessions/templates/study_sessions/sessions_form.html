@@ -1,0 +1,9 @@
+{% extends "study_sessions/base.html" %}
+{% block content %}
+  <h2>{{ view.object|default:"Add New Session" }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+{% endblock %}
