@@ -1,9 +1,10 @@
 {% extends "study_sessions/base.html" %}
 {% block content %}
   <h2>{{ view.object|default:"Add New Session" }}</h2>
-  <form method="post">
+  <form method="post" class="w-50 mx-auto">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Save</button>
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="{% url 'sessions_list' %}" class="btn btn-outline-secondary">Cancel</a>
   </form>
 {% endblock %}

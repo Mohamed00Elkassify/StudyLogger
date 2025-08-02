@@ -1,39 +1,63 @@
 {% extends "study_sessions/base.html" %}
 
 {% block content %}
-    <h2>Your Study Sessions</h2>
-    <form method="get">
-        <label for="subject">Subject:</label>
-        <input type="text" id="subject" name="subject" value="{{ request.GET.subject }}" title="Enter the subject" placeholder="Subject">
-        <label for="start">Start:</label>
-        <input type="text" id="start" name="start" value="{{ request.GET.start_date }}" title="Enter the start date" placeholder="YYYY-MM-DD">
-        <label for="end">End:</label>
-        <input type="text" id="end" name="end" value="{{ request.GET.end_date }}" title="Enter the end date" placeholder="YYYY-MM-DD">
-    </form>
-    <ul>
-        {% for session in sessions %}
-            <li>
-                {{ session.subject }} - {{ session.date }} - {{ session.duration }} min
-                <a href="{% url 'sessions_edit' session.pk %}">Edit</a>
-                <a href="{% url 'sessions_delete' session.pk %}">Delete</a>
-            </li>
-        {% empty %}
-            <li>No study sessions found.</li>
-        {% endfor %}
+  <h2>Your Study Sessions</h2>
+
+  <form method="get" class="row mb-4">
+    <div class="col-md-3">
+      <label>Subject:</label>
+        <select name="subject" class="form-select">
+          <option value="">-- All Subjects --</option>
+          {% for subject in subjects %}
+            <option value="{{ subject }}" {% if request.GET.subject == subject %}selected{% endif %}>
+              {{ subject }}
+            </option>
+          {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+      <label>Start Date:</label>
+      <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+    </div>
+    <div class="col-md-3">
+      <label>End Date:</label>
+      <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary me-2">Filter</button>
+      <a href="{% url 'sessions_list' %}" class="btn btn-outline-secondary">Clear</a>
+    </div>
+  </form>
+
+  {% if sessions %}
+    <ul class="list-group">
+      {% for session in sessions %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>{{ session.date }} — <strong>{{ session.subject }}</strong> — {{ session.duration_human }}</div>
+          <div>
+            <a href="{% url 'sessions_edit' session.pk %}" class="btn btn-sm btn-warning">Edit</a>
+            <a href="{% url 'sessions_delete' session.pk %}" class="btn btn-sm btn-danger">Delete</a>
+          </div>
+        </li>
+      {% endfor %}
     </ul>
-        {% if is_paginated %}
-            <div>
-              {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-              {% endif %}
-            
-              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-            
-              {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-              {% endif %}
-            </div>
-        {% endif %}
-    
+
+    {% if is_paginated %}
+      <nav class="mt-4">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">« First</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹ Previous</a></li>
+          {% endif %}
+          <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next ›</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last »</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  {% else %}
+    <div class="alert alert-info">No sessions found.</div>
+  {% endif %}
+{% endblock %}

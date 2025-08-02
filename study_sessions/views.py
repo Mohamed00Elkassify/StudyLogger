@@ -13,14 +13,14 @@ from django.db.models import Sum
 
 # Create your views here.
 
+#* Register
 class RegisterView(FormView):
     form_class = RegisterForm
-    template_name = 'registration/signup'
-    success_url = reverse_lazy('login')
+    template_name = 'registration/signup.html'
+    success_url = reverse_lazy('login')  
 
     def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
+        form.save()  
         return super().form_valid(form)
     
 #* List, Filter, Pagination
@@ -44,6 +44,12 @@ class SessionListView(LoginRequiredMixin, ListView):
         if end_date:
             qs = qs.filter(date__lte=end_date)
         return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        subjects = Session.objects.filter(user=self.request.user).values_list('subject', flat=True).distinct()
+        context['subjects'] = subjects
+        return context
 
 #* create
 class SessionCreateView(LoginRequiredMixin, CreateView):

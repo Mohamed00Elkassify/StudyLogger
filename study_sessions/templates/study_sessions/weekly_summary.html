@@ -1,11 +1,24 @@
 {% extends "study_sessions/base.html" %}
 {% block content %}
   <h2>Weekly Summary</h2>
-  <ul>
-    {% for entry in summary %}
-      <li>{{ entry.subject }}: {{ entry.total }} minutes</li>
-    {% empty %}
-      <li>No sessions logged this week.</li>
-    {% endfor %}
-  </ul>
+  {% if summary %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Total Minutes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in summary %}
+          <tr>
+            <td>{{ row.subject }}</td>
+            <td>{{ row.total }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-warning">No study sessions recorded for this week.</div>
+  {% endif %}
 {% endblock %}

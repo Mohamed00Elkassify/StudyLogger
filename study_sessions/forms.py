@@ -11,7 +11,8 @@ class RegisterForm(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2']
 
 class SessionsForm(forms.ModelForm):
+    date = forms.DateField(widget=forms.SelectDateWidget)
+    
     class Meta:
         model = Session
-        fields = ['subject', 'duration', 'date', 'notes']
-        
+        fields = ['subject', 'duration', 'date']
